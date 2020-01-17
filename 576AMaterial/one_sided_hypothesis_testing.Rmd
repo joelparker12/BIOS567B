@@ -1,0 +1,68 @@
+---
+title: "R Notebook"
+output: word_document
+---
+Biostatistics 576A: Hypothesis Testing: One-SampleInference7.27Test the hypothesis that the incidence rate of nausea for the erythromycin group is the same as for atypical pregnant woman.
+H0: p = 0.30 versus H1: p != 0.30
+X ~ Binomial(200,0.30)
+```{r}
+binom.test(110, 200, p = 0.3, alternative =c("two.sided"), conf.level = 0.95)
+```
+
+7.28Compute the sample size required to detect a significant change in DBP over 1 month using a one-tailedtest with a significance level of 5%.H0:μd = 0 versus H1:μd = 4.8 mm HgX ~ Normal(4.8, 9ˆ2)
+
+
+```{r}
+library(pwr)
+power.t.test(d = 4.8/9,sig.level = 0.05, power = 0.9,type = "one.sample",alternative = "one.sided")
+
+```
+
+
+
+
+
+
+```{r}
+library(PASWR)
+tsum.test(mean.x = 12.5, s.x = 4.75, n.x = 51,alternative = "two.sided", mu = 14.44,var.equal = FALSE, conf.level = 0.95)
+```
+
+
+
+7.57Perform the test in Problem 7.56 and provide a two-tailed p-value.
+
+```{r}
+tsum.test(mean.x = 18.9, s.x = 26.4, n.x = 10,alternative = "two.sided", mu = 0,var.equal = FALSE, conf.level = 0.95)
+```
+
+
+find the N:
+```{r}
+power.t.test(d = 10/26.4,sig.level = 0.05,type = "one.sample",alternative = "two.sided", n = 57)
+```
+
+
+
+7.105Test the hypothesis that the fracture rate in those given the new drug is the same as that in untreatedwomen.H0: p = 0.05 versus H1: p ??? 0.05X ~ Binomial(100,0.05)
+```{r}
+binom.test(2, 100, p = 0.05, alternative =c("two.sided"), conf.level = 0.95)
+```
+
+7.106Provide a 95% confidence interval for the rate of abdominal pain among the active treated womengiven that 8 out of the 100 developed abdominal pain.
+```{r}
+binom.test(8, 100, alternative =c("two.sided"), conf.level = 0.95)
+````
+
+
+7.107 How many women need to be studied to have 80% power to detect a difference between a fracture rateof 2.5% compared with the rate of 5% in untreated women to have 80% power if a two-sided test with ?? =0.05 is used
+
+```{r}
+pwr.p.test(h =ES.h(p1 = 0.05, p2 = 0.025),sig.level = 0.05,power = 0.80)
+```
+
+
+
+
+
+

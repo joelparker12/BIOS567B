@@ -1,0 +1,5 @@
+psych - used the describe function to describe the vairables.
+Hmisc - used for weighted statistics
+pwr - used to find the power of a study eg: power.t.test
+PASSWR - tsum.test() used for ttest if no data is available
+
