@@ -1,0 +1,96 @@
+---
+title: "Homework chapter 5"
+output: word_document
+---
+
+5.31Compute Pr(65 < X < 120) when X ~ N(90,38ˆ2))
+```{r}
+ #First convert to standard normal
+z1 <- (65-90)/38
+z2 <- (120-90)/38
+# Compute probability
+pnorm(z2)- pnorm(z1)
+```
+
+
+5.32Compute the abnormal limit
+```{r}
+1.5*120
+```
+
+
+5.32) Compute Pr(X > 180) when X ~ N(90,38ˆ2)
+```{r}
+z <- (180-90)/38
+1-pnorm(z)
+```
+
+5.36Compute Pr(X > 0.30) when X ~ N(0.80,0.48ˆ2) for those in the vitamin E group
+```{r}
+z<- (.3-.8)/.48
+1-pnorm(z)
+```
+
+5.38Compute Pr(X <= 0.30) when X ~ N(0.05,0.16ˆ2) for those in the placebo group
+
+```{r}
+pnorm((.3-.05)/.16)
+```
+
+Compute Pr(X <= 300) when X ~ N(230,203ˆ2) for the black children
+
+```{r}
+pnorm((300-230)/203)
+```
+
+
+5.48Compute Pr(X <= 300) when X ~ N(400,218ˆ2) for the white children
+```{r}
+pnorm((300-400)/218)
+```
+
+
+5.50Compute Pr(X = 29) when X ~ binomial(n = 84, p = 0.24)
+
+```{r}
+dbinom(29, 84, .24)
+```
+
+
+Using the normal approximation to the binomial:
+```{r}
+q <- 1-0.24
+# Compute n*p*q:
+84*0.24*q
+```
+
+```{r}
+mu <- 84*0.24
+sigma <-sqrt(84*0.24*0.76)
+# Convert to the standard normal distribution:
+z1 <- (28.5-20.16)/3.91
+z2 <- (29.5-20.16)/3.91
+# Compute probability
+pnorm(z2)- pnorm(z1)
+
+
+```
+
+
+
+5.51Compute Pr(X >= 29) when X ~ binomial(n = 84, p = 0.24)
+```{r}
+1- pbinom(28, size = 84, prob = 0.24)
+
+```
+
+sing the normal approximation to the binomial: Compute Pr(X >= 28.5) when X ~ N(20.16,3.912)
+```{r}
+# Convert to the standard normal distribution:
+z <- (28.5-20.16)/3.91
+# Compute probability
+1- pnorm(z)
+```
+
+
+
