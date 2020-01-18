@@ -1,0 +1,86 @@
+---
+title: "R Notebook"
+output: word_document
+---
+11.13 Generate scatterplot with fitted regression line.
+
+```{r}
+# Enter data
+age <-seq(1:17)
+sbp <-c(99, 102, 105, 107, 108, 110, 111, 112, 114, 115, 117, 120, 122, 125, 127, 130, 132)
+df <-data.frame(age, sbp)
+model <-lm(df$sbp~df$age)
+with(df,plot(age, sbp, main = "90th percentile SBP versus Age for boys ages 1-19"))
+abline(model)
+```
+
+```{r}
+summary(model)
+
+```
+
+
+11.14CI:
+```{r}
+confint(model, level = .95)
+
+```
+
+
+11.15Using the equation above:
+
+```{r}
+E_sbp <- 97.78676+1.919118*13
+E_sbp
+attach(df)
+newdata <-data.frame(age=13)
+predict(model, newdata, se.fit = TRUE, interval="confidence")
+```
+
+
+11.18 From the plot above the regression line underestimates values for the younger and older ages andoverestimates values in the middle age range. Generate the residuals plot versus age.
+
+```{r}
+library(olsrr)
+ols_plot_resid_fit(model)
+```
+
+
+11.46 Fit the linear regression model for full-scale IQ (IQF) versus lead group with adjustment for age andgender:
+
+```{r}
+model1 <-lm(lead$iqf~lead$Group+lead$ageyrs+lead$sex)
+summary(model1)
+
+```
+
+
+```{r}
+ols_plot_resid_qq(model1)
+```
+
+
+
+```{r}
+ols_plot_resid_hist(model1)
+
+```
+
+
+```{r}
+ols_plot_diagnostics(model1)
+```
+
+
+Correlation test: 
+
+```{r}
+load("C:/Users/Joel Parker/Desktop/Bios 536A/BIOS576B/R/VALID.DAT.rdata")
+cor.test(valid$alco_dr, valid$alco_ffq, method =c("spearman"))
+
+```
+
+
+
+
+
