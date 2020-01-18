@@ -1,0 +1,90 @@
+---
+title: "R Notebook"
+output: word_document
+---
+
+10.8 Matched pair data:
+
+```{r}
+ df <- matrix(c(89 ,  16 ,  5,  90 ),   nrow = 2,  dimnames =list(c("Drug A: Effective",  "Drug A: Not Effective"), c("Drug B: Effective",  "Drug B: Not Effective")))
+df
+```
+
+McNemar’s Test since matched pair data:
+
+```{r}
+binom.test(5,  21 ,  p =   0.5  ,alternative =c("two.sided"),conf.level = 0.95)
+
+```
+
+
+10.14 Two independent samples:
+
+```{r}
+df <- matrix(c(6,  8,  111  ,  387),   nrow = 2,  dimnames =list(c("Cases", "Controls"), c("Used OC Oracon: Yes",  "Used OC Oracon: No")))
+df
+
+```
+
+
+```{r}
+prop.test(c(6,  8), c(111  ,  387  ),   p =   NULL   ,alternative =c("two.sided"),conf.level = 0.95   ,  correct = FALSE)
+```
+
+
+te that one of the expected values is < 5 so Fisher’s Exact Test should be used. R tells you Ch-sq approximation might be incorrect. The two-sided Fisher’s exact p-value is 0.100.
+
+```{r}
+fisher.test(df)
+
+```
+
+10.29 Two independent samples so use a ??2 test or Fisher’s Exact Test.
+
+```{r}
+prop.test(c(1,  16 ), c(532  ,  560  ),   p =   NULL   ,alternative =c("two.sided"),conf.level = 0.95   ,  correct = FALSE)
+
+```
+
+
+expected values are > 5 so we can use the ??2 test. The two-sided p-value is < 0.001 so reject the null hypothesis and conclude that there is a significant difference between the renal mortality incidence rates for the two groups.To compute the confidence interval, use the normal approximation to the binomial:# 
+
+
+```{r}
+# compute phat
+phat <- 17/1109
+#compute n1*phat*qhat
+576*phat*(1 - phat)
+## [1] 8.694227
+533*phat*(1 - phat)
+## [1] 8.045178
+#ok to use the normal approximation to the binomial# compute p1 and 
+p2p1 <- 16/576
+p2 <- 1/533
+prop.test(c(1,  16 ), c(533  ,  576  ),   p =   NULL   ,alternative =c("two.sided"),conf.level = 0.95   ,  correct = FALSE)
+
+```
+
+10.143 To compute the required sample size:
+
+```{r}
+power.prop.test(n =   NULL   ,  p1 =    0.3  ,  p2 =    0.1  ,  sig.level = 0.05   ,power = 0.9  ,alternative =c("two.sided"),strict = FALSE,  tol = .Machine$double.eps^0.25)
+```
+
+
+
+10.144 To compute the power with 50 children per group:
+
+```{r}
+power.prop.test(n =   50 ,  p1 =    0.3  ,  p2 =    0.1  ,  sig.level = 0.05   ,power = NULL   ,alternative =c("two.sided"),strict = FALSE,  tol = .Machine$double.eps^0.25)
+
+```
+
+
+
+
+
+
+
+
+

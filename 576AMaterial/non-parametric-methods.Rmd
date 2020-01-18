@@ -32,3 +32,5 @@ wilcox.test(length~hospital, data = hos,exact = FALSE)
 
 
 
+
+
