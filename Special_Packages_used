@@ -2,4 +2,5 @@ psych - used the describe function to describe the vairables.
 Hmisc - used for weighted statistics
 pwr - used to find the power of a study eg: power.t.test
 PASSWR - tsum.test() used for ttest if no data is available
+MESS - for two sample power eg: power_t_test(n=NULL, power=0.8         , sd = 0.64, ratio=1, sd.ratio=0.76/0.64, delta=(6.8-6         .56))
 
