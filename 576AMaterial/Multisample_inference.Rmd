@@ -1,0 +1,50 @@
+---
+title: "R Notebook"
+output: word_document
+---
+
+12.6H0:μ1 =μ2 =μ3 H1: At least two μ’s differ:
+
+```{r}
+# Enter the data first
+fevfvc <-c(20.8, 4.1, 30.0, 24.7, 13.8, 7.5, 7.5, 11.9, 4.5, 3.1, 8.0, 4.7, 28.1, 10.3, 10.0, 5.1, 2.2, 9.2, 2.0, 2.5, 6.1, 7.5)
+group <-c(rep(1, 5),rep(2, 12),rep(3, 5))
+df <-data.frame(group, fevfvc)
+```
+
+```{r}
+res.aov <-aov(fevfvc~ as.factor(group), data = df)
+# Summary of the analysis
+summary(res.aov)
+```
+
+
+```{r}
+# Test equality of variance
+bartlett.test(fevfvc~group, df)
+```
+
+```{r}
+# Pairwise comparisions
+pairwise.t.test(df$fevfvc, df$group, p.adjust.method = "bonferroni")
+
+```
+
+12.43 H0: F1 = F2 = F3 H1: At least two F’s differ where F is the appropriate cumulative distributionfunction.
+
+```{r}
+# Enter data
+protein <-c(1.7, 2.0, 2.0, 2.2, 4.0, 4.0, 5.0, 6.7, 7.8, 1.4, 2.4, 2.4, 3.3, 4.4, 6.7, 7.6, 9.5, 11.7, 4.7, 2.9, 3.8, 4.4, 4.7, 5.0, 5.6, 7.4, 9.4, 10.3)
+group <-c(rep(1, 9),rep(2, 10),rep(3, 9))
+df <-data.frame(group, protein)
+kruskal.test(protein~group, data = df)
+```
+
+
+```{r}
+res.aov <-aov(protein~ as.factor(group), data = df)
+# Summary of the analysis
+summary(res.aov)
+```
+
+
