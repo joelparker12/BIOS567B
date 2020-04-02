@@ -1,0 +1,236 @@
+---
+title: "HomeWork_6"
+author: "Joel parker"
+date: "March 30, 2020"
+output: word_document
+---
+
+1.) The goal of the analysis is to generate the appropriate model for tumor penetration of the prostatic capsule versus the baseline exam values. Assess whether the assumptions of the logistic regression are met. 
+
+```{r}
+
+library(haven)
+prostC <- read_dta('hw6.dta')
+
+
+#### First we will look at discriptive statistics. 
+###dependent var
+rbind(table(prostC$capsule),prop.table(table(prostC$capsule))) ### resonable probs
+
+summary(prostC$age) ### approximatly normal. 
+hist(prostC$age)  ### approximatly normal. 
+
+####Race
+rbind(table(prostC$race), prop.table(table(prostC$race))) ### Most of the participants are white. 
+
+
+###dpros
+rbind(table(prostC$dpros), prop.table(table(prostC$dpros))) ### 4 may be under represented. 
+
+
+### PSA
+summary(prostC$psa) ## apprears to be very right skewed. 
+hist(prostC$psa)
+
+
+### Gleason Score
+rbind(table(prostC$gleason), prop.table(table(prostC$gleason)))
+hist(prostC$gleason)
+
+
+#Create logit loess function
+logitloess <-function(x, y, s, p) {
+  logit <-function(pr) {log(pr/(1-pr))}
+  if(missing(s)) {locspan <- 0.8}
+  else{locspan <- s}
+  loessfit <-predict(loess(y~x,span=locspan))
+  pi <-pmax(pmin(loessfit,0.9999),0.0001)
+  logitfitted <-logit(pi)
+  plot(x, logitfitted, ylab="logit", main = p)}
+
+
+
+## age vs Capsule
+logitloess(prostC$age, prostC$capsule, .4, "Age VS Capsule")
+
+
+#prostC_r <- prostC[!is.na(prostC$race),]
+#logitloess(prostC_r$race, prostC_r$capsule, .4, "Race vs Capsule")
+
+
+logitloess(prostC$dpros, prostC$capsule, .4, "Dprose Vs Capsule")
+
+logitloess(prostC$psa, prostC$capsule, .4, "Psa Vs Capsule")
+
+logitloess(prostC$gleason, prostC$capsule,.4, "Gleason Vs Capsule")
+
+
+
+```
+
+* **capsule** The probeblity of peretration is not to extreme. 
+
+* **age** Looking at the hist. Age appears to be approximatly normal. However, looking at our lowess scatter plot age does not have linearity of the log odds ration. We would need to have have a transformation of age. 
+
+* **race** 90% of the participants are white.    
+
+* **Dprose** does have a linear relationship.
+
+* **PSA** does not have a linear relationship and will need a transoformation. 
+* **gleason** has a linear relationship.  But has a low percentage of participants in catagories 5 and 8.
+
+* **independence** All study participantes are independent. 
+
+
+
+2.) Generate the approprate model for tumor penetration of prostatic capsule versus the baseline exam values. Consider the purpose of your model to determine the most appropriate method to determine which variables should be included. 
+
+```{r}
+mod_1 <- glm(capsule~age+as.factor(race)+as.factor(dpros)+ psa+ gleason, data = prostC, family = binomial(link = 'logit'))
+
+
+lo_select <- step(mod_1, direction = "backward")
+summary(lo_select)
+
+```
+
+* the only variable removed was age. Our model will be.  $$log(\hat{capsule}) = \alpha + \beta_1 \cdot race + \beta_2 \cdot dpros + \beta_3 \cdot psa + beta_4 \cdot gleason$$
+
+3.) Some studies in the literature have identified an interaction between psa and gleason score. Assess whether an interaction term is needed in the model you selected above. 
+
+```{r}
+prostC$inter <- prostC$psa * prostC$gleason
+mod_iter <- glm(capsule~as.factor(race)+as.factor(dpros)+psa+gleason+ inter, data = prostC, family = binomial(link = "logit"))
+
+library(lmtest)
+
+lrtest(lo_select, mod_iter)
+
+
+```
+
+
+* Looking at the likelyhood ration between the two models (with and without the interaction term) $H_0$: There is no differenct between models and $H_1$ there is a difference between models. we get a pvalue of .78. Thus there is not enough evidence to suggest that an interaction term is needed.  
+
+
+4.) Determine the outliers in X and outliers in Y for you final model. State why they are outliers. 
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+library(ggplot2)
+hat_df <- cbind(names(lo_select$fitted.values), hatvalues(lo_select))
+hat_df <- data.frame(hat_df)
+hat_df$group <- 1
+colnames(hat_df)[c(1,2)] <- c("id", "h")
+hat_df$h <- as.numeric(levels(hat_df$h))[hat_df$h]
+ggplot(hat_df, aes(x=factor(group), y= h))+
+  geom_boxplot() +
+  geom_text(aes(label=id), na.rm = TRUE, hjust = -0.3)
+
+
+```
+
+```{r}
+#show h>.06
+list_id <- hat_df[hat_df$h>.06,]$id
+list_id <- as.numeric(levels(list_id))[list_id]
+lever_df <-cbind(prostC[prostC$id%in%c(list_id),-8], hat_df[hat_df$h>.06,-3])
+lever_df[order(lever_df$h),]
+
+
+```
+
+* most of the indiduals with high leverage are african american with high psa. 
+
+```{r, echo=FALSE}
+
+dev_df <- cbind(names(lo_select$fitted.values), residuals.glm(lo_select, type = "deviance"))
+dev_df <- data.frame(dev_df)
+dev_df$group <- 1
+colnames(dev_df)[c(1,2)] <- c("id", "dev")
+dev_df$dev <- as.numeric(levels(dev_df$dev))[dev_df$dev]
+ggplot(dev_df, aes(x=factor(group), y=dev)) +
+  geom_boxplot() +
+  geom_text(aes(label=id), na.rm=TRUE, hjust = -0.3)
+
+
+```
+
+```{r}
+##show dev >2.75
+list_id <- dev_df[dev_df$dev>2.75,]$id
+list_id <- as.numeric(levels(list_id))[list_id]
+prostC[prostC$id %in% c(list_id),]
+
+```
+* There are not any outliers in Y. 
+
+5.) Determine the influential points for your final model. State why they are influential. 
+
+```{r}
+dfbeta_df <- cbind(names(lo_select$fitted.values), cooks.distance(lo_select))
+dfbeta_df <- data.frame(dfbeta_df)
+dfbeta_df$group <- 1
+colnames(dfbeta_df)[c(1,2)] <- c("id", "dfbetas")
+dfbeta_df$dfbetas <- as.numeric(levels(dfbeta_df$dfbetas))[dfbeta_df$dfbetas]
+ggplot(dfbeta_df, aes(x=factor(group), y=dfbetas)) +
+  geom_boxplot()+
+  geom_text(aes(label =id), na.rm = TRUE, hjust=-.3)
+
+```
+
+
+```{r}
+# show cooks distance greater than .02
+
+list_id <- dfbeta_df[dfbeta_df$dfbetas>.02,]$id
+list_id <- as.numeric(levels(list_id))[list_id]
+prostC[prostC$id%in% c(list_id),]
+
+
+```
+
+6.) Assess the goodness of fit of your final model.  
+
+```{r}
+library(ResourceSelection)
+#H0: the model fits the data. 
+hoslem.test(prostC[!is.na(prostC$race),]$capsule, fitted(lo_select), g=10)
+
+
+
+```
+
+* H0: the model fits well. H1: the model does not fit well. Since our p-value is .42 we can conclude our model fits the data. 
+
+```{r}
+prob <-predict(lo_select, type = c("response"))
+library(ROCR)
+listR<- prostC[!is.na(prostC$race), ]
+pred <- prediction(prob, as.numeric(listR$capsule))
+perf <- performance(pred, measure = "tpr", x.measure = "fpr")
+plot(perf, col = rainbow(7), main = "ROC curve", xlab= '1-specificity', ylab = 'Sesitivity')
+abline(0,1)
+
+
+### get AUC
+auc = performance(pred, "auc")
+auc@y.values
+
+```
+
+
+
+
+
+7.) Describe the results of your model in language understandable to a scientific audience.
+
+```{r}
+exp(lo_select$coefficients)
+
+
+```
+
+* **Summary** We used backwards elimination to determine our final model. We used the criteria of p-value less than .2 for a variable to be included in our model. The first model fit used Age, Race, Results of the Digital Rectal exam, Prostate Specific Anigen Value and Total Gleason Score as predictors of Tumor Penetration prostatic Capsule.  Age, PSA, and gleason score were modeled as continuouse variable. Race and Results of Digital Rectal Exam we modeled as categorical variables with white men and No nodule as the referance group respectively. The only variable eliminated from our model was age. African american had an odds ratio of .52 when compared to white men. Uniobar Nodule (Left), Uniobar Nodule (Right) and Biobar Nodule had odds ratios of 2.19, 4.84, and 4.47 resectively when compared to No module. A one unit increase in PSA have an odds ration of 1.03 and a one unit increase in glease score had an odds ratio of 2.69. The model had a good discrimination with an area under the ROC curve of 0.82.
+
+
+
